@@ -7,7 +7,7 @@ public class MapNode {
 
     //a node in the map has a value, and a set of edges coming out of it
     int val;//remember, names = numbers, this number represents a name
-    boolean covered;
+    boolean covered; //have we visited this node yet for min dom set?
     HashSet<MapEdge> nodeEdgeSet;
 
     //construct our MapNode

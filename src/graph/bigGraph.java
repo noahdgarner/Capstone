@@ -8,7 +8,7 @@ import static util.GraphLoader.loadGraph;
 /**
  * @author Noah Garner
  */
-public class CapGraph implements Graph {
+public class bigGraph implements Graph {
 
     //no we want to use a hashmap
     //an integer that maps to a list of integers to mapnodes
@@ -17,7 +17,7 @@ public class CapGraph implements Graph {
     HashSet<MapEdge> myGraphEdges;
 
     //construct our graph
-    public CapGraph() {
+    public bigGraph() {
         this.myGraph = new HashMap<>();
         this.myGraphEdges = new HashSet<>();
     }
@@ -70,10 +70,10 @@ public class CapGraph implements Graph {
      */
 
     @Override
-    public CapGraph getEgonet(int center) {
+    public bigGraph getEgonet(int center) {
         //asked us to return a copy, lets makes a copy.
         //generate subgraph, copies of original graph nodes, return it
-        CapGraph egonet = new CapGraph();
+        bigGraph egonet = new bigGraph();
         if (!this.myGraph.containsKey(center)) {
             return egonet;
         }
@@ -103,10 +103,8 @@ public class CapGraph implements Graph {
         }
         return egonet;
     }
-    /* (non-Javadoc)
-     * @see graph.Graph#getSCCs()
-     */
 
+    //SCC: maximal, and SCC.
     @Override
     public List<Graph> getSCCs() {
         //stack done
@@ -118,6 +116,7 @@ public class CapGraph implements Graph {
         //for all vertices, working?
         for (int node : vertices) {
             if (!visited.contains(node)) {
+                //part 1
                 DFS(node, visited, finished);
             }
         }
@@ -126,22 +125,21 @@ public class CapGraph implements Graph {
         //working
         HashSet<Integer> visitedTranspose = new HashSet<>();
         List<Graph> strongComponentList = new ArrayList<>();
-        // Now process all vertices in order defined by Stack
-        //want to count the calls
+        // Now process all vertices in order defined by Stack in previous for loop
         while (!finished.empty()) {
             //create a graph
-            CapGraph component = new CapGraph();
+            bigGraph component = new bigGraph();
             int aNode = finished.pop();
             if(!visitedTranspose.contains(aNode)) {
-                //whats wrong here? Its chaining everything to 1
+                //part 2
                 DFSUtil(aNode, visitedTranspose, component);
                 strongComponentList.add(component);
             }
         }
         return strongComponentList;
     }
-
-    public void DFSUtil(int aNode, HashSet<Integer> visitedTranspose, CapGraph component) {
+    //part 1 of algorithm
+    public void DFSUtil(int aNode, HashSet<Integer> visitedTranspose, bigGraph component) {
         visitedTranspose.add(aNode); //add 5, working
         component.addVertex(aNode); //add the vertex (has a set of edges)
         //this is where something is going wrong
@@ -153,8 +151,7 @@ public class CapGraph implements Graph {
                 }
         }
     }
-
-    //helper dfs, make sure vertices stack has same nodes as in graph
+    //helper dfs, make sure vertices stack has same nodes as in graph. Part 2 of algorithm
     public void DFS(int aNode, HashSet<Integer> visited, Stack<Integer> finished) {
         visited.add(aNode);
         //for each neighbor of the node
@@ -168,9 +165,7 @@ public class CapGraph implements Graph {
         }
         finished.push(aNode);
     }
-
-
-    //swap all edges in the graph, do not change this because this one actually works..
+    //swap all edges in the graph, for SCC method.
     public void swapEdges() {
         for (MapEdge edge : myGraphEdges) {
             MapNode temp;
@@ -179,29 +174,15 @@ public class CapGraph implements Graph {
             edge.startNode = temp;
         }
     }
-    /* (non-Javadoc)
-     * @see graph.Graph#exportGraph()
-     * //basically, this method should simply return a node, and all of its neighbors.
-     */
+
 
     @Override
     public HashMap<Integer, HashSet<Integer>> exportGraph() {
         //init return map
         HashMap<Integer, HashSet<Integer>> convertedGraph = new HashMap<>();
-
         //now we should iterate over our map, and put all its neighbors into the hashmap's hashset vals
-        this.myGraph.forEach((key, value) -> {
-            convertedGraph.put(key, value.getIntegerFriends());
-        });
+        this.myGraph.forEach((key, value) -> convertedGraph.put(key, value.getIntegerFriends()));
         return convertedGraph;
-    }
-
-    public Set<MapNode> getFriends(MapNode node) {
-        return node.getNodeFriends();
-    }
-
-    private HashSet<Integer> getIntegerFriends(MapNode node) {
-        return node.getIntegerFriends();
     }
 
 
@@ -209,7 +190,7 @@ public class CapGraph implements Graph {
 
 
         //lets instantiate our graph class
-        CapGraph ourGraph = new CapGraph();
+        bigGraph ourGraph = new bigGraph();
         //we create a vertex 4, converts to MapNode, with blank edgeset
         ourGraph.addVertex(0);
         ourGraph.addVertex(1);
@@ -238,41 +219,20 @@ public class CapGraph implements Graph {
 
 
         //test on twitter data
-        CapGraph twitterData = new CapGraph();
-        loadGraph(twitterData, "data/wikivotes");
+        bigGraph wikiData = new bigGraph();
+        //uncomment the loader you want to load.
+        //loadGraph(wikiData, "data/twitter_combined.txt");
+        loadGraph(wikiData, "data/twitter_higgs.txt");
+        //loadGraph(wikiData, "data/wikivotes");
 
 
-        CapGraph g = twitterData.getEgonet(4098);
+        bigGraph g = wikiData.getEgonet(88);
+        //remember: res is a HashMap where Key=node, Value=setOfDirectNeighbors
         HashMap<Integer, HashSet<Integer>> res = g.exportGraph();
-        System.out.println(res);
+        for(HashSet<Integer> set : res.values()){
 
-
-        List<Graph> listofG = twitterData.getSCCs();
-        for(int i = 0;i<listofG.size();i++) {
-            System.out.println(listofG.get(i).exportGraph());
+            p(set.toString());
         }
-
-        //obviously, 8 will be connected to all
-
-
-        /*for(HashSet<Integer> n :  res.values()){
-            System.out.println(n);
-        }*/
-        //print the components for testing purposes
-
-
-
-
-        /*Iterator<Map.Entry<Integer,MapNode>> iter = ourGraph.myGraph.entrySet().iterator();
-        while(iter.hasNext()) {
-            System.out.println(iter.next().getValue().getNodeFriends());
-        }
-        */
-
-        //way simpler way to iterate through map elements, i.e. key values with lambdas
-        //okay lambdas are amazing for hashmaps, never going back to iterator
-        //ourGraph.myGraph.forEach((key, value) -> p("User :" + key + " Friends: " + ourGraph.getFriends(value))); //same as value.getNodeFriends():
-
 
     }
 
