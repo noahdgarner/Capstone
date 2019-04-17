@@ -5,9 +5,9 @@
  *
  */
 
-package graph.grader;
+package graph.tester;
 
-import graph.CapGraph;
+import graph.BigGraph;
 import graph.Graph;
 import util.GraphLoader;
 
@@ -15,17 +15,17 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.*;
 
-public class SCCGrader extends Grader {
+public class SCCTester extends Grader {
     public int totalTests;
     public int testsPassed;
 
-    public SCCGrader() {
+    public SCCTester() {
         totalTests = 0;
         testsPassed = 0;
     }
     @SuppressWarnings("deprecation")
 	public static void main(String[] args) {
-        SCCGrader grader = new SCCGrader();
+        SCCTester grader = new SCCTester();
         Thread thread = new Thread(grader);
         thread.start();
         long endTime = System.currentTimeMillis() + 30000;
@@ -56,7 +56,7 @@ public class SCCGrader extends Grader {
         try {
 
             for(int i = 0; i < 10; i++) {
-                Graph g = new CapGraph();
+                Graph g = new BigGraph();
                 Set<Integer> vertices;
 
                 String answerFile = "data/scc_answers/scc_" + (i + 1) + ".txt";

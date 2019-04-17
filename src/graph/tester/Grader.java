@@ -5,7 +5,7 @@
  *
  */
 
-package graph.grader;
+package graph.tester;
 
 public abstract class Grader implements Runnable {
     public String feedback = "";

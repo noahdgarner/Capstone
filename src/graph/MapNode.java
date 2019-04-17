@@ -42,7 +42,7 @@ public class MapNode {
         return friends;
     }
 
-    //so that we can use this in our export graph function, yes really bad way of polymorphism, is this dynamic or compile?
+    //specifically for the exportGraph Method because it wants integer vals
     public HashSet<Integer> getIntegerFriends(){
         HashSet<Integer> friends = new HashSet<>();
         for (MapEdge mapEdge : nodeEdgeSet) {

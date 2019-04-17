@@ -1,7 +1,7 @@
 
-package graph.grader;
+package graph.tester;
 
-import graph.CapGraph;
+import graph.BigGraph;
 import graph.Graph;
 import util.GraphLoader;
 
@@ -11,11 +11,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Scanner;
 
-public class EgoGrader extends Grader {
+@SuppressWarnings("ALL")
+public class EgoTester extends Grader {
     private static final int TESTS = 10;
 
     public static void main(String[] args) {
-        Grader grader = new EgoGrader();
+        Grader grader = new EgoTester();
         Thread thread = new Thread(grader);
         thread.start();
 
@@ -43,7 +44,7 @@ public class EgoGrader extends Grader {
     /* Main grading method */
     public void run() {
         try {
-            Graph graph = new CapGraph();
+            Graph graph = new BigGraph();
             GraphLoader.loadGraph(graph, "data/facebook_ucsd.txt");
             feedback += "\nGRAPH: facebook_ucsd.txt";
             for (int i = 0; i < 10; i++) {

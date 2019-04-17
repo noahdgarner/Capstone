@@ -1,6 +1,8 @@
 
 package graph;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.*;
 
 import static util.GraphLoader.loadGraph;
@@ -8,16 +10,14 @@ import static util.GraphLoader.loadGraph;
 /**
  * @author Noah Garner
  */
-public class bigGraph implements Graph {
-
-    //no we want to use a hashmap
+public class BigGraph implements Graph {
     //an integer that maps to a list of integers to mapnodes
     HashMap<Integer, MapNode> myGraph;
     //to track all edges between nodes in our graph
     HashSet<MapEdge> myGraphEdges;
 
     //construct our graph
-    public bigGraph() {
+    public BigGraph() {
         this.myGraph = new HashMap<>();
         this.myGraphEdges = new HashSet<>();
     }
@@ -34,8 +34,8 @@ public class bigGraph implements Graph {
         } else {
             //System.out.println("num "+num+" was already added.");
         }
-
     }
+
     /* (non-Javadoc)
      * @see graph.Graph#addEdge(int, int)
      */
@@ -56,6 +56,11 @@ public class bigGraph implements Graph {
         toNode.addEdge(edge);
     }
 
+    //return all edges in this graph
+    public HashSet<MapEdge> getEdges() {
+        return this.myGraphEdges;
+    }
+
     //get all the vertices in the graph
     public Stack<Integer> getAllIntegerVertices() {
         Stack<Integer> verticesAsStack = new Stack<>();
@@ -68,12 +73,11 @@ public class bigGraph implements Graph {
     /* (non-Javadoc)
      * @see graph.Graph#getEgonet(int)
      */
-
     @Override
-    public bigGraph getEgonet(int center) {
+    public BigGraph getEgonet(int center) {
         //asked us to return a copy, lets makes a copy.
         //generate subgraph, copies of original graph nodes, return it
-        bigGraph egonet = new bigGraph();
+        BigGraph egonet = new BigGraph();
         if (!this.myGraph.containsKey(center)) {
             return egonet;
         }
@@ -92,9 +96,9 @@ public class bigGraph implements Graph {
 
         for (Integer i : egoNodes) {
             //skip center, we just added centers edges
-            if(i == center)
+            if (i == center)
                 continue;
-            for (MapNode n: this.myGraph.get(i).getNodeFriends()) {
+            for (MapNode n : this.myGraph.get(i).getNodeFriends()) {
                 //does our set contain anything related to this element
                 if (egoNodes.contains(n.val)) {
                     egonet.addEdge(i, n.val);
@@ -128,9 +132,9 @@ public class bigGraph implements Graph {
         // Now process all vertices in order defined by Stack in previous for loop
         while (!finished.empty()) {
             //create a graph
-            bigGraph component = new bigGraph();
+            BigGraph component = new BigGraph();
             int aNode = finished.pop();
-            if(!visitedTranspose.contains(aNode)) {
+            if (!visitedTranspose.contains(aNode)) {
                 //part 2
                 DFSUtil(aNode, visitedTranspose, component);
                 strongComponentList.add(component);
@@ -138,20 +142,8 @@ public class bigGraph implements Graph {
         }
         return strongComponentList;
     }
-    //part 1 of algorithm
-    public void DFSUtil(int aNode, HashSet<Integer> visitedTranspose, bigGraph component) {
-        visitedTranspose.add(aNode); //add 5, working
-        component.addVertex(aNode); //add the vertex (has a set of edges)
-        //this is where something is going wrong
-        for (int neighbor : myGraph.get(aNode).getIntegerFriends()) {
-            //this is the most important line of code in the entire algorithm and is what was causing so many issues
-            //if the neighbor has not been visited, and the neighbor is an ENDNODE! (because we swapped the nodes) i.e. a = aNode, b = neighbor then a <- b
-            if (!visitedTranspose.contains(neighbor) && myGraph.get(aNode).hasEdgeTo(myGraph.get(neighbor))) {
-                    DFSUtil(neighbor, visitedTranspose, component);
-                }
-        }
-    }
-    //helper dfs, make sure vertices stack has same nodes as in graph. Part 2 of algorithm
+
+    //part 1, build the stack
     public void DFS(int aNode, HashSet<Integer> visited, Stack<Integer> finished) {
         visited.add(aNode);
         //for each neighbor of the node
@@ -165,6 +157,21 @@ public class bigGraph implements Graph {
         }
         finished.push(aNode);
     }
+
+    //part 2, build the component (implement comparable for nodeval)
+    public void DFSUtil(int aNode, HashSet<Integer> visitedTranspose, BigGraph component) {
+        visitedTranspose.add(aNode); //add 5, working
+        component.addVertex(aNode); //add the vertex (has a set of edges)
+        //this is where something is going wrong
+        for (Integer neighbor : myGraph.get(aNode).getIntegerFriends()) {
+            //this is the most important line of code in the entire algorithm and is what was causing so many issues
+            //if the neighbor has not been visited, and the neighbor is an ENDNODE! (because we swapped the nodes) i.e. a = aNode, b = neighbor then a <- b
+            if (!visitedTranspose.contains(neighbor) && myGraph.get(aNode).hasEdgeTo(myGraph.get(neighbor))) {
+                DFSUtil(neighbor, visitedTranspose, component);
+            }
+        }
+    }
+
     //swap all edges in the graph, for SCC method.
     public void swapEdges() {
         for (MapEdge edge : myGraphEdges) {
@@ -174,7 +181,6 @@ public class bigGraph implements Graph {
             edge.startNode = temp;
         }
     }
-
 
     @Override
     public HashMap<Integer, HashSet<Integer>> exportGraph() {
@@ -187,62 +193,48 @@ public class bigGraph implements Graph {
 
 
     public static void main(String[] args) {
-
-
-        //lets instantiate our graph class
-        bigGraph ourGraph = new bigGraph();
-        //we create a vertex 4, converts to MapNode, with blank edgeset
-        ourGraph.addVertex(0);
-        ourGraph.addVertex(1);
-        ourGraph.addVertex(2);
-        ourGraph.addVertex(3);
-        ourGraph.addVertex(4);
-
-        ourGraph.addEdge(1, 0);
-        ourGraph.addEdge(0, 2);
-        ourGraph.addEdge(2, 1);
-        ourGraph.addEdge(0, 3);
-        ourGraph.addEdge(3, 4);
-
-        Stack<MapNode> vertices = new Stack<>();
-
-        MapNode aNode1 = new MapNode(1);
-        MapNode aNode2 = new MapNode(2);
-        MapNode aNode3 = new MapNode(3);
-        MapNode aNode4 = new MapNode(4);
-        MapNode aNode5 = new MapNode(5);
-        vertices.push(aNode1);
-        vertices.push(aNode2);
-        vertices.push(aNode3);
-        vertices.push(aNode4);
-        vertices.push(aNode5);
-
-
-        //test on twitter data
-        bigGraph wikiData = new bigGraph();
-        //uncomment the loader you want to load.
-        //loadGraph(wikiData, "data/twitter_combined.txt");
-        loadGraph(wikiData, "data/twitter_higgs.txt");
-        //loadGraph(wikiData, "data/wikivotes");
-
-
-        bigGraph g = wikiData.getEgonet(88);
-        //remember: res is a HashMap where Key=node, Value=setOfDirectNeighbors
-        HashMap<Integer, HashSet<Integer>> res = g.exportGraph();
-        for(HashSet<Integer> set : res.values()){
-
-            p(set.toString());
-        }
+        //prelim tests, notice we don't need to use third param
+        sccPrinter("data/scc/test_2.txt", true, 2);
+/*        big file lets go, Stackoverflow :(
+        sccPrinter("data/twitter_combined.txt");*/
+        sccPrinter("data/wikivotes", false, 4098);
+        //try twitter_higgs?
+        sccPrinter("data/twitter_higgs.txt",false,0);
 
     }
 
-
+    public static void sccPrinter(String fileName, boolean getEgo, int egoVal)   {
+        //instantiate graph object
+        BigGraph graphDataFromFile = new BigGraph();
+        //test SCC, note we cannot run this on entire data, so we run on an egonet
+        loadGraph(graphDataFromFile, fileName);
+        //create components, weird, it was necessary to split the declaration
+        List<Graph> graphSCCs;
+        if(getEgo == true) {
+            //so we can look at a specific area of interest in our graph
+            graphSCCs = graphDataFromFile.getEgonet(egoVal).getSCCs();
+        }
+        else {
+            graphSCCs = graphDataFromFile.getSCCs();
+        }
+        //a list of our components for output
+        List<Set<Integer>> sccs = new ArrayList<>();
+        // get student SCC result
+        for (Graph aGraph : graphSCCs) {
+            HashMap<Integer, HashSet<Integer>> curr = aGraph.exportGraph();
+            //fancy set is all
+            Set<Integer> scc = new HashSet<>();
+            for (Map.Entry<Integer, HashSet<Integer>> entry : curr.entrySet()) {
+                scc.add(entry.getKey());
+            }
+            sccs.add(scc);
+        }
+        for (Set<Integer> anSCC : sccs) {
+            p(anSCC.toString());
+        }
+    }
 
     public static void p(String printStuff) {
         System.out.println(printStuff);
-    }
-
-    public HashSet<MapEdge> getEdges() {
-        return this.myGraphEdges;
     }
 }
