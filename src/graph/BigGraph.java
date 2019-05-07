@@ -112,7 +112,7 @@ public class BigGraph implements Graph {
             if (!visited.contains(node)) {
                 //part 1
                 DFS(node, visited, finished);
-            }
+            }//
         }
         //100% working
         this.swapEdges();
@@ -213,7 +213,6 @@ public class BigGraph implements Graph {
                     }
                 }
 
-
                 //print the coveredness of each vertex in the graph with lambda
                 graph.graphNodes.forEach((k, v) ->
                         p("key: " + k + " Value:" + v.covered));
@@ -264,11 +263,6 @@ public class BigGraph implements Graph {
         // 4333 nodes to cover a 15000 node graph. hmmm, i guess thats ok,seems bad
 
     }
-
-
-
-
-
 
     //quick scc print
     public static void sccPrinter(String fileName, boolean getEgo, int egoVal)   {
