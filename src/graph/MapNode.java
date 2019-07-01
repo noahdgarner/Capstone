@@ -29,6 +29,7 @@ public class MapNode {
         this.covered = covered;
     }
 
+
     public boolean isCovered() {
         return this.covered;
     }
@@ -94,7 +95,7 @@ public class MapNode {
                 if (neighbor.covered == false) {
                     //cover it
                     neighbor.setCovered(true);
-                    //update vertex table
+                    //update vertex table, -2 because of to/from edges per node
                     vertexTable.put(neighbor.getVal(), vertexTable.get(neighbor.getVal()) - 2);
                 }
                 else
@@ -132,7 +133,6 @@ public class MapNode {
     public String toString() {
         return "value: " + val;
     }
-
     //this is the function we needed to get our algorithm to work. Only works with twitter data,
     //facebook data everything is strongly connected because its an undirected graph
     public boolean hasEdgeTo(MapNode neighbor) {
@@ -143,10 +143,5 @@ public class MapNode {
         }
         return false;
     }
-
-    //what the fuck
-
-
-
 }
 
