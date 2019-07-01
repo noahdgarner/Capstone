@@ -7,3 +7,4 @@ information quickly within a social network, this algorithm will generate the no
 you should send the information towards in order to get your message out the
 quickest!! Really cool stuff, both algorithms work, and are good
 per situation.
+ 
